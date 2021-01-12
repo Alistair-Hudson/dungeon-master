@@ -8,24 +8,26 @@ public class MonsterAI : MonoBehaviour
 {
     [SerializeField] float chaseRange = 10f;
     [SerializeField] float turnSpeed = 5f;
+    [SerializeField] float aimlessRange = 5f;
     //[SerializeField] float damage = 50f;
 
 
     HeroAI[] heros;
     NavMeshAgent navMeshAgent;
     float distanceToTarget = Mathf.Infinity;
+    Vector3 aimlessDestination;
     //bool isProvoked = false;
 
     // Start is called before the first frame update
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
-        heros = FindObjectsOfType<HeroAI>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        heros = FindObjectsOfType<HeroAI>();
         
         foreach (HeroAI hero in heros)
         {
@@ -35,19 +37,27 @@ public class MonsterAI : MonoBehaviour
                 EngageHero(hero);
                 return;
             }
+
         }
 
-        //MoveAimlessly();
+        MoveAimlessly();
 
     }
 
     private void MoveAimlessly()
     {
-        float x = UnityEngine.Random.Range(-1, 1) * Time.deltaTime;
-        float y = UnityEngine.Random.Range(-1, 1) * Time.deltaTime;
-        float z = UnityEngine.Random.Range(-1, 1) * Time.deltaTime;
-
-        navMeshAgent.Move(new Vector3(x, y, z));
+        if (aimlessDestination != null)
+        {
+            float distanceToDest = Vector3.Distance(aimlessDestination, transform.position);
+            if (distanceToDest >= navMeshAgent.stoppingDistance)
+            {
+                navMeshAgent.SetDestination(aimlessDestination);
+                return;
+            }
+        }
+        aimlessDestination = new Vector3(UnityEngine.Random.Range(transform.position.x - aimlessRange, transform.position.x + aimlessRange),
+                                            0,
+                                            UnityEngine.Random.Range(transform.position.z - aimlessRange, transform.position.z + aimlessRange));
     }
 
     //public void OnHit()
