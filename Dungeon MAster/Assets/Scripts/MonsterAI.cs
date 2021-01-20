@@ -9,6 +9,7 @@ public class MonsterAI : MonoBehaviour
     [SerializeField] float chaseRange = 10f;
     [SerializeField] float turnSpeed = 5f;
     [SerializeField] float aimlessRange = 5f;
+    [SerializeField] int cost = 100;
     //[SerializeField] float damage = 50f;
 
 
@@ -22,6 +23,19 @@ public class MonsterAI : MonoBehaviour
     void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
+        GetComponentInParent<MinionSpawner>().IncreasePopulationCount();
+        GetComponentInParent<MinionSpawner>().DecreaseGold(cost);
+    }
+
+    private void OnDestroy()
+    {
+        try
+        {
+            GetComponentInParent<MinionSpawner>().DecreasePopulationCount();
+        }catch(Exception e)
+        {
+            Debug.Log(e.GetBaseException());
+        }
     }
 
     // Update is called once per frame
@@ -108,5 +122,10 @@ public class MonsterAI : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, chaseRange);
+    }
+
+    public int GetCost()
+    {
+        return cost;
     }
 }
